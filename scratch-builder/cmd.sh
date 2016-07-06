@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -x
+set -e
+
+cd "$DATA_DIR"
+
+if [ ! -f /workspace/vars ] ; then
+    cp ./vars.sample /workspace/vars
+    echo "Modify 'vars' file according to what you want and restart this script."
+    exit 1
+fi
+
+. /workspace/vars
+
+# Setting proxy for groovy & grapes download
+for PROXY_VAR in http_proxy HTTP_PROXY ; do
+    # dynamic variable name thanks to http://stackoverflow.com/a/18124325/535203
+    if [ -n "${!PROXY_VAR}" ] ; then
+        # parsing url thanks to http://stackoverflow.com/a/6174447/535203
+        PROXY_HOST=`echo ${!PROXY_VAR} | sed -e's,^.*://\(.*\):.*,\1,g'`
+        PROXY_PORT=`echo ${!PROXY_VAR} | sed -e's,^.*://.*:\(.*\),\1,g'`
+        JAVA_PROXY="-Dhttp.proxyHost=$PROXY_HOST -Dhttp.proxyPort=$PROXY_PORT "
+    fi
+done
+export JAVA_OPTS="$JAVA_PROXY$JAVA_OPTS"
+
+make oracle_drop || echo "Ignoring problem while dropping"
+make -j4 oracle

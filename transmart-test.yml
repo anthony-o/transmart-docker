@@ -1,0 +1,37 @@
+version: '2'
+services:
+    transmart_test_tomcat:
+        container_name: transmart_test_tomcat
+        build:
+            context: ./tomcat
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
+                - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+                - https_proxy=${https_proxy_IN_CONTAINER}
+                - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+        ports:
+            - "8080:8080"
+        volumes:
+            - /var/local/transmart/test/.grails:/root/.grails
+            - /usr/local/tomcat/webapps
+            - /transmart_test:/transmart_test
+    transmart_test_builder:
+        container_name: transmart_test_builder
+        build:
+            context: ./builder
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
+                - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+                - https_proxy=${https_proxy_IN_CONTAINER}
+                - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+        volumes_from:
+            - transmart_test_tomcat
+        volumes:
+            - /var/local/transmart/test/.grails:/root/.grails
+            - /var/local/transmart/test/workspace:/workspace
+            - /var/local/transmart/.m2/repository:/root/.m2/repository
+        environment:
+            - http_proxy=${http_proxy_IN_CONTAINER}
+            - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+            - https_proxy=${https_proxy_IN_CONTAINER}
+            - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}

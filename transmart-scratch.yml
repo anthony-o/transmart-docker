@@ -1,0 +1,54 @@
+version: '2'
+services:
+    transmart_scratch_tomcat:
+        container_name: transmart_scratch_tomcat
+        build:
+            context: ./tomcat
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
+                - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+                - https_proxy=${https_proxy_IN_CONTAINER}
+                - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+        ports:
+            - "8081:8080"
+        volumes:
+            - /var/local/transmart/scratch/.grails:/root/.grails
+            - /usr/local/tomcat/webapps
+            - /transmart_test:/transmart_test
+    transmart_scratch_transmartapp_builder:
+        container_name: transmart_scratch_transmartapp_builder
+        build:
+            context: ./builder
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
+                - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+                - https_proxy=${https_proxy_IN_CONTAINER}
+                - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+        volumes_from:
+            - transmart_scratch_tomcat
+        volumes:
+            - /var/local/transmart/scratch/.grails:/root/.grails
+            - /var/local/transmart/scratch/workspace:/workspace
+            - /var/local/transmart/.m2/repository:/root/.m2/repository
+            - /transmart_test:/transmart_test
+        environment:
+            - http_proxy=${http_proxy_IN_CONTAINER}
+            - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+            - https_proxy=${https_proxy_IN_CONTAINER}
+            - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+    transmart_scratch_oracle_builder:
+        container_name: transmart_scratch_oracle_builder
+        build:
+            context: ./scratch-builder
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
+                - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+                - https_proxy=${https_proxy_IN_CONTAINER}
+                - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+        volumes:
+            - /var/local/transmart/scratch/workspace:/workspace
+        environment:
+            - http_proxy=${http_proxy_IN_CONTAINER}
+            - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+            - https_proxy=${https_proxy_IN_CONTAINER}
+            - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
