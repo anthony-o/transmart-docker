@@ -3,7 +3,7 @@
 set -x
 set -e
 
-cd "$DATA_DIR"
+cd "$TM_DATA_DIR"
 
 if [ ! -f /workspace/vars ] ; then
     cp ./vars.sample /workspace/vars
@@ -26,4 +26,5 @@ done
 export JAVA_OPTS="$JAVA_PROXY$JAVA_OPTS"
 
 make oracle_drop || echo "Ignoring problem while dropping"
+make -C ddl/oracle drop_tablespaces || echo "Ignoring problem while dropping"
 make -j4 oracle
