@@ -47,6 +47,8 @@ services:
                 - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
         volumes:
             - /var/local/transmart/scratch/workspace:/workspace
+            - /var/local/transmart/scratch/.groovy:/root/.groovy
+            - /var/local/transmart/.m2/repository:/root/.m2/repository
         environment:
             - http_proxy=${http_proxy_IN_CONTAINER}
             - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}

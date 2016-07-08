@@ -25,6 +25,11 @@ for PROXY_VAR in http_proxy HTTP_PROXY ; do
 done
 export JAVA_OPTS="$JAVA_PROXY$JAVA_OPTS"
 
-make oracle_drop || echo "Ignoring problem while dropping"
-make -C ddl/oracle drop_tablespaces || echo "Ignoring problem while dropping"
-make -j4 oracle
+function create_oracle_ddl {
+	make oracle_drop || echo "Ignoring problem while dropping"
+	make -C ddl/oracle drop_tablespaces || echo "Ignoring problem while dropping"
+	make -j4 oracle
+}
+
+# Trying 2 times because the first time we have "General error during conversion: Error grabbing Grapes -- [unresolved dependency: net.sf.opencsv#opencsv;2.3: not found]"
+create_oracle_ddl || create_oracle_ddl
