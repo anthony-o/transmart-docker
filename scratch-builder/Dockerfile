@@ -1,4 +1,5 @@
-FROM maven:3.3.9-jdk-7
+FROM java:7u101-jdk
+# Can't use "FROM maven:3.3.9-jdk-7" because it declares a VOLUME /root/.m2 so this folder can't be deleted and a bug "Error grabbing Grapes -- [unresolved dependency: net.sf.opencsv#opencsv;2.3: not found]" appears and can't be resolve like this http://stackoverflow.com/a/24959124/535203 by deleting ~/.m2
 
 RUN apt-get update && apt-get -y upgrade
 
