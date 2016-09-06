@@ -15,7 +15,7 @@ services:
         volumes:
             - /var/local/transmart/dev/.grails:/root/.grails
 #            - /transmart_dev:/transmart_dev
-            - /var/local/transmart/dev/data:/data
+            - /var/local/transmart/dev/data/solr:/usr/local/transmart/transmart-data-sanofi-release-16.1/solr/solr
             - /var/local/transmart/dev/workspace:/workspace
             - /var/local/transmart/.m2/repository:/root/.m2/repository
         environment:

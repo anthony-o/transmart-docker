@@ -63,20 +63,25 @@ fi
 export GRAILS_OPTS="-XX:MaxPermSize=1g -Xmx2g"
 
 # Checkout project & branch
-rm $WORKSPACE_DIR/current_revs_counts || echo "No current revisions counts"
+rm $WORKSPACE_DIR/current_footprint || echo "No current revisions counts"
 for PROJECT in folder-management-plugin transmartApp transmart-dev ; do
 	if [ ! -d $WORKSPACE_DIR/$PROJECT ] ; then
 		git clone $GIT_URL_BASE/$PROJECT.git $WORKSPACE_DIR/$PROJECT
 	fi
 	cd $WORKSPACE_DIR/$PROJECT
-	git fetch
-	git checkout $BRANCH
-	git rev-list --count HEAD >> $WORKSPACE_DIR/current_revs_counts
+	GIT_DIFF=$(git diff)
+	if [ -n "$GIT_DIFF" ] ; then
+		echo "$GIT_DIFF" >> $WORKSPACE_DIR/current_footprint
+	else
+		git fetch
+		git checkout $BRANCH
+		git rev-list --count HEAD >> $WORKSPACE_DIR/current_footprint
+	fi
 done
 
 # Build if necessary (using rev-list count feature thanks to http://stackoverflow.com/a/38819020/535203)
 cd $WORKSPACE_DIR/transmartApp
-if [ ! -f $WORKSPACE_DIR/build_revs_counts ] || [ "$(cat $WORKSPACE_DIR/build_revs_counts)" != "$(cat $WORKSPACE_DIR/current_revs_counts)" ] ; then
+if [ ! -f $WORKSPACE_DIR/build_footprint ] || [ "$(cat $WORKSPACE_DIR/build_footprint)" != "$(cat $WORKSPACE_DIR/current_footprint)" ] ; then
 
 	if [ -n "$GRAILS_CLEAN_ALL" ] ; then
 		grails clean-all
@@ -86,7 +91,7 @@ if [ ! -f $WORKSPACE_DIR/build_revs_counts ] || [ "$(cat $WORKSPACE_DIR/build_re
 fi
 # Move to war-files dir
 cp target/*.war $INSTALL_BASE/war-files/
-cp $WORKSPACE_DIR/{current,build}_revs_counts
+cp $WORKSPACE_DIR/{current,build}_footprint
 
 # Install war files
 cp $INSTALL_BASE/war-files/*.war $CATALINA_HOME/webapps/
@@ -111,6 +116,10 @@ if [ -n "$LDAPS_URL" ] ; then
 fi
 
 # Load, configure and start SOLR
+if [ -z "$(ls $TM_DATA_DIR/solr/solr)" ] ; then
+	# Retrieving original data due to Docker volume mount
+	cp -ar $TM_DATA_DIR/solr/solr{.orig/*,/}
+fi
 cd $INSTALL_BASE/transmart-data
 source ./vars
 make -C solr start > $INSTALL_BASE/transmart-data/solr.log 2>&1 &

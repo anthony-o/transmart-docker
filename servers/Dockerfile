@@ -71,6 +71,7 @@ RUN apt-get install -y netcat
 
 # Install SOLR
 RUN bash -c 'cd $INSTALL_BASE/transmart-data && source ./vars && make -C solr start & while ! nc -vz localhost 8983 2>/dev/null ; do sleep 2 ; done'
+RUN cp -ar $TM_DATA_DIR/solr/solr $TM_DATA_DIR/solr/solr.orig
 
 # Updates on Tomcat
 # Ability to download / export files from "Browse"
