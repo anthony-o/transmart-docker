@@ -1,0 +1,25 @@
+version: '2'
+services:
+    transmart_dev_servers:
+        container_name: transmart_dev_servers
+        build:
+            context: ./servers
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
+                - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+                - https_proxy=${https_proxy_IN_CONTAINER}
+                - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+        ports:
+            - "8082:8080"
+            - "6313:6311"
+        volumes:
+            - /var/local/transmart/dev/.grails:/root/.grails
+#            - /transmart_dev:/transmart_dev
+            - /var/local/transmart/dev/data:/data
+            - /var/local/transmart/dev/workspace:/workspace
+            - /var/local/transmart/.m2/repository:/root/.m2/repository
+        environment:
+            - http_proxy=${http_proxy_IN_CONTAINER}
+            - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+            - https_proxy=${https_proxy_IN_CONTAINER}
+            - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}

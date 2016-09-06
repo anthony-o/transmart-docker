@@ -15,6 +15,7 @@ services:
             - /var/local/transmart/test/.grails:/root/.grails
             - /usr/local/tomcat/webapps
             - /transmart_test:/transmart_test
+            - /var/local/transmart/test/data:/data
     transmart_test_builder:
         container_name: transmart_test_builder
         build:
