@@ -115,11 +115,22 @@ if [ -n "$LDAPS_URL" ] ; then
 	rm /tmp/cert.pem
 fi
 
+# Configure vars with current Oracle settings
+sed -i "s/^ORAHOST=.*$/ORAHOST=$(grep -oP '(?<=jdbc:oracle:thin:@)[^:]*' ~/.grails/transmartConfig/DataSource.groovy)/" $TM_DATA_DIR/vars
+sed -i "s/^ORAPORT=.*$/ORAPORT=$(grep -oP '(?<=jdbc:oracle:thin:@)[^"]*' ~/.grails/transmartConfig/DataSource.groovy | cut -d: -f 2)/" $TM_DATA_DIR/vars
+sed -i "s/^ORASID=.*$/ORASID=$(grep -oP '(?<=jdbc:oracle:thin:@)[^"]*' ~/.grails/transmartConfig/DataSource.groovy | cut -d: -f 3)/" $TM_DATA_DIR/vars
+sed -i "s/^ORAUSER=.*$/ORAUSER=$(grep -oP '(?<=username = ")[^"]*' ~/.grails/transmartConfig/DataSource.groovy)/" $TM_DATA_DIR/vars
+ORAPASSWORD=$(grep -oP '(?<=password = ")[^"]*' ~/.grails/transmartConfig/DataSource.groovy)
+sed -i "s/^ORAPASSWORD=.*$/ORAPASSWORD=$ORAPASSWORD/" $TM_DATA_DIR/vars
+sed -i "s/BIOMART_USER_PWD=.*$/BIOMART_USER_PWD=$ORAPASSWORD/" $TM_DATA_DIR/vars
+
 # Load, configure and start SOLR
 if [ -z "$(ls $TM_DATA_DIR/solr/solr)" ] ; then
 	# Retrieving original data due to Docker volume mount
 	cp -ar $TM_DATA_DIR/solr/solr{.orig/*,/}
 fi
+find $TM_DATA_DIR/solr/solr -name 'data-config.xml' -exec rm {} \;
+
 cd $INSTALL_BASE/transmart-data
 source ./vars
 make -C solr start > $INSTALL_BASE/transmart-data/solr.log 2>&1 &
