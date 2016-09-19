@@ -1,34 +1,21 @@
 version: '2'
 services:
-    transmart_test_tomcat:
-        container_name: transmart_test_tomcat
+    transmart_test_servers:
+        container_name: transmart_test_servers
         build:
-            context: ./tomcat
+            context: ./servers
             args:
                 - http_proxy=${http_proxy_IN_CONTAINER}
                 - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
                 - https_proxy=${https_proxy_IN_CONTAINER}
                 - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
         ports:
-            - "8080:8080"
+            - "8081:8080"
+            - "8984:8983"
         volumes:
             - /var/local/transmart/test/.grails:/root/.grails
-            - /usr/local/tomcat/webapps
             - /transmart_test:/transmart_test
-            - /var/local/transmart/test/data:/data
-    transmart_test_builder:
-        container_name: transmart_test_builder
-        build:
-            context: ./builder
-            args:
-                - http_proxy=${http_proxy_IN_CONTAINER}
-                - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
-                - https_proxy=${https_proxy_IN_CONTAINER}
-                - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
-        volumes_from:
-            - transmart_test_tomcat
-        volumes:
-            - /var/local/transmart/test/.grails:/root/.grails
+            - /var/local/transmart/test/data/solr:/usr/local/transmart/transmart-data-sanofi-release-16.1/solr/solr
             - /var/local/transmart/test/workspace:/workspace
             - /var/local/transmart/.m2/repository:/root/.m2/repository
         environment:
@@ -36,3 +23,4 @@ services:
             - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
             - https_proxy=${https_proxy_IN_CONTAINER}
             - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+            - USE_REMOTE_RSERVE=true

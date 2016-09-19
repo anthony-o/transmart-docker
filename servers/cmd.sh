@@ -74,7 +74,9 @@ for PROJECT in folder-management-plugin transmartApp transmart-dev ; do
 		echo "$GIT_DIFF" >> $WORKSPACE_DIR/current_footprint
 	else
 		git fetch
-		git checkout $BRANCH
+		if [ -n "$(git checkout $BRANCH | grep '"git pull"' || echo "")" ] ; then
+			git pull
+		fi
 		git rev-list --count HEAD >> $WORKSPACE_DIR/current_footprint
 	fi
 done
@@ -144,13 +146,15 @@ done
 make -C solr browse_full_import rwg_full_import sample_full_import
 
 # start Rserve
-# The following 2 lines ended with "Fatal error: you must specify '--save', '--no-save' or '--vanilla'"
-#cd $SCRIPTS_BASE/Scripts/install-ubuntu
-#./runRServe.sh
-cd $INSTALL_BASE/transmart-data
-source vars
-source /etc/profile.d/Rpath.sh
-R CMD Rserve --no-save
+if [ -z "$USE_REMOTE_RSERVE" ] ; then
+	# The following 2 lines ended with "Fatal error: you must specify '--save', '--no-save' or '--vanilla'"
+	#cd $SCRIPTS_BASE/Scripts/install-ubuntu
+	#./runRServe.sh
+	cd $INSTALL_BASE/transmart-data
+	source vars
+	source /etc/profile.d/Rpath.sh
+	R CMD Rserve --no-save
+fi
 
 # start Tomcat
 catalina.sh run
