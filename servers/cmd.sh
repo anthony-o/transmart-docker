@@ -64,7 +64,7 @@ export GRAILS_OPTS="-XX:MaxPermSize=1g -Xmx2g"
 
 # Checkout project & branch
 rm $WORKSPACE_DIR/current_footprint || echo "No current revisions counts"
-for PROJECT in folder-management-plugin transmartApp transmart-dev ; do
+for PROJECT in folder-management-plugin transmartApp transmart-dev transmart-rest-api ; do
 	if [ ! -d $WORKSPACE_DIR/$PROJECT ] ; then
 		git clone $GIT_URL_BASE/$PROJECT.git $WORKSPACE_DIR/$PROJECT
 	fi
@@ -88,6 +88,7 @@ if [ ! -f $WORKSPACE_DIR/build_footprint ] || [ "$(cat $WORKSPACE_DIR/build_foot
 	if [ -n "$GRAILS_CLEAN_ALL" ] ; then
 		grails clean-all
 	fi
+	grails clean
 	# Must launch 2 times because on the first time, the plugin transmart-core-db-tests will compile with errors
 	grails war || grails war
 fi
@@ -157,4 +158,8 @@ if [ -z "$USE_REMOTE_RSERVE" ] ; then
 fi
 
 # start Tomcat
-catalina.sh run
+if [ -n "$DEBUG_WITH_JPDA" ] ; then
+	catalina.sh jpda run
+else
+	catalina.sh run
+fi
