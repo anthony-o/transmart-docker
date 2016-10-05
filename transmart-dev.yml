@@ -10,6 +10,7 @@ services:
                 - https_proxy=${https_proxy_IN_CONTAINER}
                 - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
         ports:
+            - "8002:8000"
             - "8082:8080"
             - "6313:6311"
             - "8985:8983"
@@ -24,3 +25,4 @@ services:
             - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
             - https_proxy=${https_proxy_IN_CONTAINER}
             - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+            - DEBUG_WITH_JPDA=true
