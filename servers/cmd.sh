@@ -69,7 +69,13 @@ for PROJECT in folder-management-plugin transmartApp transmart-dev transmart-res
 		git clone $GIT_URL_BASE/$PROJECT.git $WORKSPACE_DIR/$PROJECT
 	fi
 	cd $WORKSPACE_DIR/$PROJECT
-	GIT_DIFF=$(git diff)
+	UNTRACKED_FILES=$(git ls-files --others --exclude-standard)
+	if [ -n "$UNTRACKED_FILES" ] ; then
+		for UNTRACKED_FILE in $UNTRACKED_FILES ; do
+			UNTRACKED_FILES="$UNTRACKED_FILES$(echo $UNTRACKED_FILE)$(cat $UNTRACKED_FILE)"
+		done
+	fi
+	GIT_DIFF=$(git diff)$UNTRACKED_FILES
 	if [ -n "$GIT_DIFF" ] ; then
 		echo "$GIT_DIFF" >> $WORKSPACE_DIR/current_footprint
 	else
