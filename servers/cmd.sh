@@ -4,7 +4,8 @@ set -x
 
 WORKSPACE_DIR=/workspace
 GIT_URL_BASE=https://github.com/anthony-o
-BRANCH=sanofi-release-16.1
+DEFAULT_BRANCH=sanofi-release-16.1
+[[ -z "$BRANCH" ]] && BRANCH=$DEFAULT_BRANCH
 
 # The following line is used because we had "Error Error packaging application: Error occurred processing message bundles: Error starting Sun's native2ascii:  (Use --stacktrace to see the full trace)" when trying to build transmartApp with grails
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64
@@ -80,9 +81,13 @@ for PROJECT in folder-management-plugin transmartApp transmart-dev transmart-res
 		echo "$GIT_DIFF" >> $WORKSPACE_DIR/current_footprint
 	else
 		git fetch
-		if [ -n "$(git checkout $BRANCH | grep '"git pull"' || echo "")" ] ; then
+		PROJECT_BRANCH="$BRANCH"
+		#git fetch --tags # because the previous command sometimes doesn't fetch all tags, and this command fetches only tags, see http://stackoverflow.com/a/1208223/535203 # We don't use tags yet, but only other branches
+		git rev-parse --verify "origin/$PROJECT_BRANCH" >/dev/null || PROJECT_BRANCH="$DEFAULT_BRANCH" # allow to checkout a specific tag or branch, and if it doesn't exists, fallback to the default branch. Testing method thanks to http://stackoverflow.com/a/36942600/535203 and http://stackoverflow.com/a/28776049/535203 . Added "origin/" in front of the branch name, else we had "fatal: Needed a single revision" error
+		if [ -n "$(git checkout $PROJECT_BRANCH | grep '"git pull"' || echo "")" ] ; then
 			git pull
 		fi
+		echo "$PROJECT:$PROJECT_BRANCH" >> $WORKSPACE_DIR/current_footprint
 		git rev-list --count HEAD >> $WORKSPACE_DIR/current_footprint
 	fi
 done

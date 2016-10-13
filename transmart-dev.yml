@@ -26,3 +26,4 @@ services:
             - https_proxy=${https_proxy_IN_CONTAINER}
             - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
             - DEBUG_WITH_JPDA=true
+            - BRANCH=sanofi-release-16.1-dev
