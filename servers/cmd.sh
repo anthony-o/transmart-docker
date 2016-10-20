@@ -101,7 +101,14 @@ if [ ! -f $WORKSPACE_DIR/build_footprint ] || [ "$(cat $WORKSPACE_DIR/build_foot
 	fi
 	grails clean
 	# Must launch 2 times because on the first time, the plugin transmart-core-db-tests will compile with errors
-	grails war || grails war
+	grails war || grails war || BUILD_FAILED=true
+	if [ -n "$BUILD_FAILED" ] && [ -z "$GRAILS_CLEAN_ALL" ] ; then
+	    # The build failed, and "clean-all" wasn't call. Try to clean-all and rebuild 2 times (because the 1st will fail)
+	    grails clean-all
+	    grails war || grails war
+	else
+	    exit 2
+	fi
 fi
 # Move to war-files dir
 cp target/*.war $INSTALL_BASE/war-files/
