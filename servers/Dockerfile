@@ -86,6 +86,9 @@ RUN cp -ar $TM_DATA_DIR/solr/solr $TM_DATA_DIR/solr/solr.orig
 # Install ejstatd
 RUN cd /opt && git clone https://github.com/anthony-o/ejstatd.git
 
+# Install additionnal R packages
+RUN $TM_DATA_DIR/R/root/bin/R -e 'install.packages(c("formatR", "highr", "markdown", "yaml", "htmltools", "knitr", "rmarkdown"), repos="http://cloud.r-project.org");'
+
 ADD cmd.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/cmd.sh
 
