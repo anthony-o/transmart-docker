@@ -83,6 +83,9 @@ RUN apt-get install -y netcat
 RUN bash -c 'cd $INSTALL_BASE/transmart-data && source ./vars && make -C solr start & while ! nc -vz localhost 8983 2>/dev/null ; do sleep 2 ; done'
 RUN cp -ar $TM_DATA_DIR/solr/solr $TM_DATA_DIR/solr/solr.orig
 
+# Install ejstatd
+RUN cd /opt && git clone https://github.com/anthony-o/ejstatd.git
+
 ADD cmd.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/cmd.sh
 

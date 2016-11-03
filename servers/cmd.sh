@@ -177,6 +177,18 @@ if [ -z "$USE_REMOTE_RSERVE" ] ; then
 	R CMD Rserve --no-save
 fi
 
+# start jstatd if asked
+if [ -n "$DEBUG_WITH_EJSTATD" ] ; then
+    cd /opt/ejstatd
+    mvn package
+    mvn exec:java -Djava.rmi.server.hostname=$HOST_HOSTNAME -Dexec.args="-pr ${EJSTATD_RPORT:-1099} -ph ${EJSTATD_HPORT:-1199} -pv ${EJSTATD_VPORT:-1299}" &
+fi
+
+# Add a JMX connection if asked
+if [ -n "$DEBUG_WITH_JMX" ] ; then
+    export JAVA_OPTS="$JAVA_OPTS -Djava.rmi.server.hostname=$HOST_HOSTNAME -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=${JMXREMOTE_PORT:-1098} -Dcom.sun.management.jmxremote.rmi.port=${JMXREMOTE_PORT:-1098}"
+fi
+
 # start Tomcat
 if [ -n "$DEBUG_WITH_JPDA" ] ; then
 	catalina.sh jpda run

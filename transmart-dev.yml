@@ -14,6 +14,10 @@ services:
             - "8082:8080"
             - "6313:6311"
             - "8985:8983"
+            - "1101:1101"
+            - "1201:1201"
+            - "1301:1301"
+            - "1100:1100"
         volumes:
             - /var/local/transmart/dev/.grails:/root/.grails
 #            - /transmart_dev:/transmart_dev
@@ -26,4 +30,11 @@ services:
             - https_proxy=${https_proxy_IN_CONTAINER}
             - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
             - DEBUG_WITH_JPDA=true
+            - DEBUG_WITH_EJSTATD=true
+            - DEBUG_WITH_JMX=true
+            - HOST_HOSTNAME=${HOSTNAME}
+            - EJSTATD_RPORT=1101
+            - EJSTATD_HPORT=1201
+            - EJSTATD_VPORT=1301
+            - JMXREMOTE_PORT=1100
             - BRANCH=sanofi-release-16.1-dev
