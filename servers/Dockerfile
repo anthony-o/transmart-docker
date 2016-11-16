@@ -71,6 +71,9 @@ RUN sed -i 's|AJP/1.3"|AJP/1.3" packetSize="32000" URIEncoding="UTF-8" useBodyEn
 
 RUN cp -ar $CATALINA_HOME/webapps $CATALINA_HOME/webapps.orig
 
+# Install additional packages for RMarkdown: need X11 (xvfb xauth xfonts-base) (thanks http://stackoverflow.com/a/1710952/535203
+RUN apt-get install -y xvfb xauth xfonts-base
+
 # Install R, Rserve and other packages
 RUN bash -c 'cd $INSTALL_BASE/transmart-data && source ./vars && make -C R install_packages && echo "export PATH=$INSTALL_BASE/transmart-data/R/root/bin:\$PATH" > /etc/profile.d/Rpath.sh && source /etc/profile.d/Rpath.sh'
 RUN bash -c 'cd $INSTALL_BASE/transmart-data && source ./vars && TRANSMART_USER=root make -C R install_rserve_init'
@@ -86,8 +89,20 @@ RUN cp -ar $TM_DATA_DIR/solr/solr $TM_DATA_DIR/solr/solr.orig
 # Install ejstatd
 RUN cd /opt && git clone https://github.com/anthony-o/ejstatd.git
 
-# Install additionnal R packages
+# Install RStudio Server, following https://www.rstudio.com/products/rstudio/download-server/
+ENV RSTUDIO_SERVER_VERSION 1.0.44
+RUN apt-get install -y gdebi-core && cd /tmp && wget https://download2.rstudio.org/rstudio-server-$RSTUDIO_SERVER_VERSION-amd64.deb && echo "y" | gdebi rstudio-server-$RSTUDIO_SERVER_VERSION-amd64.deb && rm rstudio-server-$RSTUDIO_SERVER_VERSION-amd64.deb
+# Configuring RStudio Server to use existing R thanks to https://support.rstudio.com/hc/en-us/articles/200552316-Configuring-the-Server
+RUN echo "rsession-which-r=$TM_DATA_DIR/R/root/bin/R" >> /etc/rstudio/rserver.conf
+
+# Install additional packages for RInterface: need libprotobuf-dev protobuf-c-compiler (thanks README.md https://github.com/transmart/RInterface )
+# Install additional packages for devtools: thanks to http://stackoverflow.com/a/38698271/535203 and http://askubuntu.com/a/462471/29219
+RUN apt-get install -y libprotobuf-dev protobuf-c-compiler libcurl4-openssl-dev/jessie libssl-dev/jessie
+
+# Install additionnal R packages: RMarkdown
 RUN $TM_DATA_DIR/R/root/bin/R -e 'install.packages(c("formatR", "highr", "markdown", "yaml", "htmltools", "knitr", "rmarkdown"), repos="http://cloud.r-project.org");'
+# Install additionnal R packages: RInterface (thanks to http://stackoverflow.com/a/1250279/535203 for simple quote escaping)
+RUN bash -c 'cd $INSTALL_BASE/transmart-data && source ./vars && source /etc/profile.d/Rpath.sh && $TM_DATA_DIR/R/root/bin/R -e '"'"'install.packages("devtools", repos="http://cloud.r-project.org"); require(devtools); install_github("transmart/RInterface");'"'"''
 
 ADD cmd.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/cmd.sh

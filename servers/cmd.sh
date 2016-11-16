@@ -166,7 +166,7 @@ done
 # This last statement rebuilds all the indexes (should be done after each database load; and with SOLR running as above). You will also need to rebuild the index if you do any editing on the browse page in the tranSMART web application; browse page editing is not covered in these notes.
 make -C solr browse_full_import rwg_full_import sample_full_import
 
-# start Rserve
+# start Rserve & RStudio Server
 if [ -z "$USE_REMOTE_RSERVE" ] ; then
 	# The following 2 lines ended with "Fatal error: you must specify '--save', '--no-save' or '--vanilla'"
 	#cd $SCRIPTS_BASE/Scripts/install-ubuntu
@@ -174,19 +174,23 @@ if [ -z "$USE_REMOTE_RSERVE" ] ; then
 	cd $INSTALL_BASE/transmart-data
 	source vars
 	source /etc/profile.d/Rpath.sh
+	# Add X11 support in R thanks to http://stackoverflow.com/a/1710952/535203 and https://gist.github.com/jterrace/2911875
+	Xvfb :0 -ac -screen 0 1960x2000x24 &
 	R CMD Rserve --no-save
+	# Start RStudio Server
+	rstudio-server start
 fi
 
 # start jstatd if asked
 if [ -n "$DEBUG_WITH_EJSTATD" ] ; then
     cd /opt/ejstatd
     mvn package
-    mvn exec:java -Djava.rmi.server.hostname=$HOST_HOSTNAME -Dexec.args="-pr ${EJSTATD_RPORT:-1099} -ph ${EJSTATD_HPORT:-1199} -pv ${EJSTATD_VPORT:-1299}" &
+    mvn exec:java -Djava.rmi.server.hostname=${HOST_HOSTNAME:-$HOSTNAME} -Dexec.args="-pr ${EJSTATD_RPORT:-1099} -ph ${EJSTATD_HPORT:-1199} -pv ${EJSTATD_VPORT:-1299}" &
 fi
 
 # Add a JMX connection if asked
 if [ -n "$DEBUG_WITH_JMX" ] ; then
-    export JAVA_OPTS="$JAVA_OPTS -Djava.rmi.server.hostname=$HOST_HOSTNAME -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=${JMXREMOTE_PORT:-1098} -Dcom.sun.management.jmxremote.rmi.port=${JMXREMOTE_PORT:-1098}"
+    export JAVA_OPTS="$JAVA_OPTS -Djava.rmi.server.hostname=${HOST_HOSTNAME:-$HOSTNAME} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=${JMXREMOTE_PORT:-1098} -Dcom.sun.management.jmxremote.rmi.port=${JMXREMOTE_PORT:-1098}"
 fi
 
 # start Tomcat

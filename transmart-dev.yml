@@ -18,6 +18,7 @@ services:
             - "1201:1201"
             - "1301:1301"
             - "1100:1100"
+            - "8789:8787"
         volumes:
             - /var/local/transmart/dev/.grails:/root/.grails
 #            - /transmart_dev:/transmart_dev
