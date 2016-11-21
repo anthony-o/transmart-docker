@@ -1,0 +1,20 @@
+version: '2'
+services:
+    transmart_only_install_db_servers:
+        container_name: transmart_only_install_db_servers
+        build:
+            context: ./servers
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
+                - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+                - https_proxy=${https_proxy_IN_CONTAINER}
+                - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+        volumes:
+            - /var/local/transmart/only_install_db/.grails:/root/.grails
+            - /var/local/transmart/only_install_db/workspace:/workspace
+        environment:
+            - http_proxy=${http_proxy_IN_CONTAINER}
+            - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+            - https_proxy=${https_proxy_IN_CONTAINER}
+            - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+            - ONLY_INSTALL_DB=true

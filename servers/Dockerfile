@@ -71,7 +71,7 @@ RUN sed -i 's|AJP/1.3"|AJP/1.3" packetSize="32000" URIEncoding="UTF-8" useBodyEn
 
 RUN cp -ar $CATALINA_HOME/webapps $CATALINA_HOME/webapps.orig
 
-# Install additional packages for RMarkdown: need X11 (xvfb xauth xfonts-base) (thanks http://stackoverflow.com/a/1710952/535203
+# Install additional packages for RMarkdown: need X11 (xvfb xauth xfonts-base) (thanks http://stackoverflow.com/a/1710952/535203)
 RUN apt-get install -y xvfb xauth xfonts-base
 
 # Install R, Rserve and other packages
