@@ -67,7 +67,7 @@ fi
 
 export GRAILS_OPTS="-XX:MaxPermSize=1g -Xmx2g"
 
-if [ -n "$ONLY_INSTALL_DB" ] || [ -n "$INSTALL_DB" ]; then
+if [ -n "$ONLY_INSTALL_DB" ] || [ -n "$ONLY_CREATE_SCHEMAS" ] || [ -n "$INSTALL_DB" ]; then
     if [ ! -f /workspace/vars ] ; then
         cp $TM_DATA_DIR/vars.sample /workspace/vars
         echo "Modify 'vars' file according to what you want and restart this script."
@@ -82,8 +82,13 @@ if [ -n "$ONLY_INSTALL_DB" ] || [ -n "$INSTALL_DB" ]; then
         . /workspace/vars
         cd $TM_DATA_DIR
         make oracle_drop || echo "Ignoring problem while dropping"
-        make -C ddl/oracle drop_tablespaces || echo "Ignoring problem while dropping"
-        make -j1 oracle
+        if [ -n "$ONLY_CREATE_SCHEMAS" ]; then
+            make -C ddl/oracle load_tablespaces
+            make -C ddl/oracle load_users
+        else
+            make -C ddl/oracle drop_tablespaces || echo "Ignoring problem while dropping"
+            make -j1 oracle
+        fi
     }
 
     # Trying 2 times because the first time we have "General error during conversion: Error grabbing Grapes -- [unresolved dependency: net.sf.opencsv#opencsv;2.3: not found]"
