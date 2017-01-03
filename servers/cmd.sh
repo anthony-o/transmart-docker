@@ -51,6 +51,7 @@ EOF
 		# lower case in bash thanks to http://stackoverflow.com/a/2264537/535203
 		LOWER_PROTO=$(echo $PROTO | tr '[:upper:]' '[:lower:]')
         JAVA_PROXY="$JAVA_PROXY -D$LOWER_PROTO.proxyHost=$PROXY_IN_CONTAINER_HOST -D$LOWER_PROTO.proxyPort=$PROXY_IN_CONTAINER_PORT"
+        JAVA_PROXY_WITHOUT_PROTO="-DproxyHost=$PROXY_IN_CONTAINER_HOST -DproxyPort=$PROXY_IN_CONTAINER_PORT"
 	fi
 done
 
@@ -76,7 +77,7 @@ if [ -n "$ONLY_INSTALL_DB" ] || [ -n "$ONLY_CREATE_SCHEMAS" ] || [ -n "$INSTALL_
 
     # Fixing "ORA-01882: timezone region not found" with user.timezone thanks for http://stackoverflow.com/questions/9156379/ora-01882-timezone-region-not-found#comment11515331_9156379 (can't use GROOVY_OPTS as Groovy 1.2.9 don't use this variable, by looking into its launch code)
     # Fixing "java.net.SocketException: Connection reset" with java.security.egd thanks to http://stackoverflow.com/a/21542991/535203
-    export JAVA_OPTS="$JAVA_PROXY$JAVA_OPTS -Xmx2g -Duser.timezone=Europe/Paris -Djava.security.egd=file:/dev/urandom"
+    export JAVA_OPTS="$JAVA_OPTS$JAVA_PROXY -Xmx2g -Duser.timezone=Europe/Paris -Djava.security.egd=file:/dev/urandom"
 
     function create_oracle_ddl {
         . /workspace/vars
@@ -227,6 +228,8 @@ if [ -z "$ONLY_INSTALL_DB" ]; then
     fi
 
     # start Tomcat
+    # Using the proxy without the protocol in CATALINA_OPTS because that's what is used in transmart-metacore-plugin's HttpBuilderService.groovy to create new connections
+    export CATALINA_OPTS="$JAVA_PROXY_WITHOUT_PROTO$JAVA_PROXY $CATALINA_OPTS"
     if [ -n "$DEBUG_WITH_JPDA" ] ; then
         catalina.sh jpda run
     else
