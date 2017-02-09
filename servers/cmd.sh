@@ -227,6 +227,11 @@ if [ -z "$ONLY_INSTALL_DB" ]; then
         export JAVA_OPTS="$JAVA_OPTS -Djava.rmi.server.hostname=${HOST_HOSTNAME:-$HOSTNAME} -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=${JMXREMOTE_PORT:-1098} -Dcom.sun.management.jmxremote.rmi.port=${JMXREMOTE_PORT:-1098}"
     fi
 
+    # Copy krb5.conf in case it exists
+    if [ -f /etc.host/krb5.conf ] ; then
+        cp /etc.host/krb5.conf /etc/
+    fi
+
     # start Tomcat
     # Using the proxy without the protocol in CATALINA_OPTS because that's what is used in transmart-metacore-plugin's HttpBuilderService.groovy to create new connections
     export CATALINA_OPTS="$JAVA_PROXY_WITHOUT_PROTO$JAVA_PROXY $CATALINA_OPTS"

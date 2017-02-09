@@ -25,6 +25,8 @@ services:
             - /var/local/transmart/dev/data/solr:/usr/local/transmart/transmart-data-sanofi-release-16.1/solr/solr
             - /var/local/transmart/dev/workspace:/workspace
             - /var/local/transmart/.m2/repository:/root/.m2/repository
+            - /var/local/transmart/etc:/usr/local/etc
+            - /etc:/etc.host:ro
         environment:
             - http_proxy=${http_proxy_IN_CONTAINER}
             - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
