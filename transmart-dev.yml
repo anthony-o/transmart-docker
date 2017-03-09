@@ -82,7 +82,6 @@ services:
             - EJSTATD_VPORT=1301
             - JMXREMOTE_PORT=1100
             - BRANCH=sanofi-release-16.1-dev
-            - USE_REMOTE_RSERVE=true
 volumes:
     transmart_dev_tomcat_webapps:
     transmart_dev_var_tmp_jobs:
