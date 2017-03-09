@@ -84,6 +84,26 @@ RUN yum install -y xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-server-Xv
     # In order for Rserve to be accessible remotly, by transmart
     echo "remote enable" > /etc/Rserv.conf
 
+# Install additionnal ROracle packages
+ARG ORACLE_INSTANTCLIENT_MAJOR_VERSION
+ARG ORACLE_INSTANTCLIENT_VERSION
+ENV ORACLE_INSTANTCLIENT_DEVEL_RPM oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR_VERSION-devel-$ORACLE_INSTANTCLIENT_VERSION.x86_64.rpm
+ENV ORACLE_INSTANTCLIENT_BASIC_RPM oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR_VERSION-basic-$ORACLE_INSTANTCLIENT_VERSION.x86_64.rpm
+ADD $ORACLE_INSTANTCLIENT_DEVEL_RPM /tmp/
+ADD $ORACLE_INSTANTCLIENT_BASIC_RPM /tmp/
+## Install unsigned packages with --nogpgcheck thanks to https://ask.fedoraproject.org/en/question/31116/how-do-i-install-unsigned-packages-using-yum/?answer=31119#post-id-31119
+RUN yum install -y --nogpgcheck /tmp/$ORACLE_INSTANTCLIENT_DEVEL_RPM /tmp/$ORACLE_INSTANTCLIENT_BASIC_RPM && rm -rf /tmp/*.rpm && \
+    LD_LIBRARY_PATH=/usr/lib/oracle/$ORACLE_INSTANTCLIENT_MAJOR_VERSION/client64/lib:$LD_LIBRARY_PATH OCI_LIB=/usr/lib/oracle/$ORACLE_INSTANTCLIENT_MAJOR_VERSION/client64/lib OCI_INC=/usr/include/oracle/$ORACLE_INSTANTCLIENT_MAJOR_VERSION/client64 \
+        R -e "install.packages('ROracle', repos='$R_MIRROR');" && \
+    echo "ORACLE_HOME='/usr/lib/oracle/$ORACLE_INSTANTCLIENT_MAJOR_VERSION/client64'" | tee /usr/local/lib/R/etc/Renviron.site && \
+    echo "export ORACLE_HOME=/usr/lib/oracle/$ORACLE_INSTANTCLIENT_MAJOR_VERSION/client64" | tee /etc/profile.d/oracle.sh && \
+    # Adding the Oracle Instant Client to the libs thanks to http://stackoverflow.com/questions/28025911/roracle-not-working-in-r-studio/36822521#36822521
+    echo "/usr/lib/oracle/12.1/client64/lib" | tee /etc/ld.so.conf.d/oracle.conf && ldconfig
+
+# Install old RInterface
+ADD RInterface_old.zip /tmp/
+RUN cd /tmp && unzip RInterface_old.zip && R CMD INSTALL /tmp/RInterface && rm -rf /tmp/RInterface*
+
 ADD cmd.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/cmd.sh
 

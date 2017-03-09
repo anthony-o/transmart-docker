@@ -27,8 +27,23 @@ done
 
 # Build R server image (Sanofi specific: need a Rserve image based on CentOS in order for Centrify - auth mechanism - to be installed and work correctly)
 cd $BASE_SCRIPT_DIR/rserver
+## First we need to check that the Oracle InstantClient rpms have been downloaded by the user
+ORACLE_INSTANTCLIENT_MAJOR_VERSION=12.1
+ORACLE_INSTANTCLIENT_VERSION=$ORACLE_INSTANTCLIENT_MAJOR_VERSION.0.2.0-1
+ORACLE_INSTANTCLIENT_DEVEL_RPM=oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR_VERSION-devel-$ORACLE_INSTANTCLIENT_VERSION.x86_64.rpm
+ORACLE_INSTANTCLIENT_BASIC_RPM=oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR_VERSION-basic-$ORACLE_INSTANTCLIENT_VERSION.x86_64.rpm
+if [ ! -f "$ORACLE_INSTANTCLIENT_DEVEL_RPM" ] || [ ! f "$ORACLE_INSTANTCLIENT_BASIC_RPM" ] ; then
+    echo "You must first download the Oracle Instant Client installation rpms from http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html .
+Download the following files and place them on $BASE_SCRIPT_DIR/rserver folder:
+- $ORACLE_INSTANTCLIENT_DEVEL_RPM
+- $ORACLE_INSTANTCLIENT_BASIC_RPM" >&2
+    exit 2
+fi
 PREVIOUS_TRANSMART_RSERVER_IMAGE_ID=$(docker images --quiet transmart_rserver || echo "")
-docker build --build-arg https_proxy=$https_proxy_IN_CONTAINER --build-arg http_proxy=$http_proxy_IN_CONTAINER -t transmart_rserver ./
+docker build --build-arg https_proxy=$https_proxy_IN_CONTAINER --build-arg http_proxy=$http_proxy_IN_CONTAINER \
+    --build-arg ORACLE_INSTANTCLIENT_MAJOR_VERSION=$ORACLE_INSTANTCLIENT_MAJOR_VERSION \
+    --build-arg ORACLE_INSTANTCLIENT_VERSION=$ORACLE_INSTANTCLIENT_VERSION \
+    -t transmart_rserver ./
 
 PREVIOUS_TRANSMART_RSERVER_BASE_IMAGE_ID=$(cat /var/local/transmart/built_transmart_rserver_base_image_id || echo "")
 CURRENT_TRANSMART_RSERVER_BASE_IMAGE_ID=$(docker images --quiet transmart_rserver)
