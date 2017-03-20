@@ -3,6 +3,8 @@
 set -x
 set -e
 
+STARTTIME=$(date +%s)
+
 BASE_SCRIPT_DIR="$(readlink -f `dirname $0`)"
 
 TARGET_ENV=$1
@@ -63,5 +65,10 @@ else
 fi
 
 docker-compose -f $BASE_SCRIPT_DIR/transmart-$TARGET_ENV.yml build $*
+docker rm -f transmart_${TARGET_ENV}_servers transmart_${TARGET_ENV}_rserver || echo "Ignoring problem to stop and remove transmart_${TARGET_ENV}_servers or transmart_${TARGET_ENV}_rserver"
 docker-compose -f $BASE_SCRIPT_DIR/transmart-$TARGET_ENV.yml rm -f $*
 docker-compose -f $BASE_SCRIPT_DIR/transmart-$TARGET_ENV.yml up -d $*
+
+# Compute passed time thanks to http://stackoverflow.com/q/16908084/535203
+ENDTIME=$(date +%s)
+echo "$0 executed in $(($ENDTIME - $STARTTIME)) seconds."
