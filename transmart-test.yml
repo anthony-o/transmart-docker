@@ -25,4 +25,4 @@ services:
             - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
             - https_proxy=${https_proxy_IN_CONTAINER}
             - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
-            - USE_REMOTE_RSERVE=true
+            - HOST_HOSTNAME=${HOSTNAME}
