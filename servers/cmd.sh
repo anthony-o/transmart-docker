@@ -99,7 +99,7 @@ fi
 if [ -z "$ONLY_INSTALL_DB" ]; then
     # Checkout project & branch
     rm $WORKSPACE_DIR/current_footprint || echo "No current revisions counts"
-    for PROJECT in folder-management-plugin transmartApp transmart-dev transmart-rest-api transmart-core-db transmart-metacore-plugin; do
+    for PROJECT in folder-management-plugin transmartApp transmart-dev transmart-rest-api transmart-core-db transmart-metacore-plugin transmart-extensions; do
         if [ ! -d $WORKSPACE_DIR/$PROJECT ] ; then
             git clone $GIT_URL_BASE/$PROJECT.git $WORKSPACE_DIR/$PROJECT
         fi
