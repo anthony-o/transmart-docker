@@ -77,6 +77,33 @@ RUN apt-get install -y netcat
 # Install SOLR
 RUN bash -c 'cd $INSTALL_BASE/transmart-data && source ./vars && make -C solr start & while ! nc -vz localhost 8983 2>/dev/null ; do sleep 2 ; done'
 RUN cp -ar $TM_DATA_DIR/solr/solr $TM_DATA_DIR/solr/solr.orig
+## Securing SolR access thanks to http://stackoverflow.com/a/39310582/535203
+RUN sed -i '/<\/Configure>/i \
+  <Call name="addBean">\
+    <Arg>\
+      <New class="org.eclipse.jetty.security.HashLoginService">\
+        <Set name="name">SolR authentication</Set>\
+        <Set name="config"><SystemProperty name="jetty.home" default="."/>/etc/auth/realm.properties</Set>\
+        <Set name="refreshInterval">0</Set>\
+      </New>\
+    </Arg>\
+  </Call>\
+' $TM_DATA_DIR/solr/etc/jetty.xml
+RUN sed -i '/<\/web-app>/i \
+  <security-constraint>\
+    <web-resource-collection>\
+      <web-resource-name>Solr authenticated application</web-resource-name>\
+      <url-pattern>/</url-pattern>\
+    </web-resource-collection>\
+    <auth-constraint>\
+      <role-name>solr-access</role-name>\
+    </auth-constraint>\
+  </security-constraint>\
+  <login-config>\
+    <auth-method>BASIC</auth-method>\
+    <realm-name>SolR authentication</realm-name>\
+  </login-config>\
+' $TM_DATA_DIR/solr/etc/webdefault.xml
 
 # Install ejstatd
 RUN cd /opt && git clone https://github.com/anthony-o/ejstatd.git

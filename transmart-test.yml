@@ -16,6 +16,7 @@ services:
             - /var/local/transmart/test/.grails:/root/.grails
             - /transmart_test:/transmart_test
             - /var/local/transmart/test/data/solr:/usr/local/transmart/transmart-data-sanofi-release-16.1/solr/solr
+            - /var/local/transmart/test/etc/solr-auth:/usr/local/transmart/transmart-data-sanofi-release-16.1/solr/etc/auth
             - /var/local/transmart/test/workspace:/workspace
             - /var/local/transmart/.m2/repository:/root/.m2/repository
             - /var/local/transmart/etc:/usr/local/etc

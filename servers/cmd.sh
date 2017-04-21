@@ -187,6 +187,11 @@ if [ -z "$ONLY_INSTALL_DB" ]; then
         cp -ar $TM_DATA_DIR/solr/solr{.orig/*,/}
     fi
     find $TM_DATA_DIR/solr/solr -name 'data-config.xml' -exec rm {} \;
+    ## Create auth file if it doesn't exist
+    if [ ! -f "$TM_DATA_DIR/solr/etc/auth/realm.properties" ] ; then
+        # Generate a 12 length password thanks to https://gist.github.com/earthgecko/3089509 and https://unix.stackexchange.com/a/230676/29674
+        echo "admin: $(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 12 | head -n 1),solr-access" > $TM_DATA_DIR/solr/etc/auth/realm.properties
+    fi
 
     cd $INSTALL_BASE/transmart-data
     source ./vars
