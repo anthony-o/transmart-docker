@@ -54,9 +54,9 @@ RUN yum install -y wget && cd /tmp && wget https://download2.rstudio.org/rstudio
 
 ADD cran_pkg.R /tmp/
 ADD other_pkg.R /tmp/
-RUN yum install -y cairo-devel && \
-    R -f /tmp/cran_pkg.R && \
-    R -f /tmp/other_pkg.R && \
+RUN yum install -y cairo-devel
+RUN R -f /tmp/cran_pkg.R
+RUN R -f /tmp/other_pkg.R && \
     rm -rf /tmp/*.R
 
     # Install additionnal R packages: RMarkdown
