@@ -14,7 +14,8 @@ services:
             - "8983:8983"
         volumes:
             - /var/local/transmart/test/.grails:/root/.grails
-            - /transmart_test:/transmart_test
+            - /transmart_test:/transmart_test # Used for sharing R data
+            - /transmart_test/transmart-webapps-test:/usr/local/tomcat/webapps # Used for sharing R scripts
             - /var/local/transmart/test/data/solr:/usr/local/transmart/transmart-data-sanofi-release-16.1/solr/solr
             - /var/local/transmart/test/etc/solr-auth:/usr/local/transmart/transmart-data-sanofi-release-16.1/solr/etc/auth
             - /var/local/transmart/test/workspace:/workspace
