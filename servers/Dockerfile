@@ -82,7 +82,7 @@ RUN sed -i '/<\/Configure>/i \
   <Call name="addBean">\
     <Arg>\
       <New class="org.eclipse.jetty.security.HashLoginService">\
-        <Set name="name">SolR authentication</Set>\
+        <Set name="name">SolR admin authentication</Set>\
         <Set name="config"><SystemProperty name="jetty.home" default="."/>/etc/auth/realm.properties</Set>\
         <Set name="refreshInterval">0</Set>\
       </New>\
@@ -92,8 +92,8 @@ RUN sed -i '/<\/Configure>/i \
 RUN sed -i '/<\/web-app>/i \
   <security-constraint>\
     <web-resource-collection>\
-      <web-resource-name>Solr authenticated application</web-resource-name>\
-      <url-pattern>/</url-pattern>\
+      <web-resource-name>SolR admin authentication</web-resource-name>\
+      <url-pattern>/admin/</url-pattern>\
     </web-resource-collection>\
     <auth-constraint>\
       <role-name>solr-access</role-name>\
@@ -101,7 +101,7 @@ RUN sed -i '/<\/web-app>/i \
   </security-constraint>\
   <login-config>\
     <auth-method>BASIC</auth-method>\
-    <realm-name>SolR authentication</realm-name>\
+    <realm-name>SolR admin authentication</realm-name>\
   </login-config>\
 ' $TM_DATA_DIR/solr/etc/webdefault.xml
 
