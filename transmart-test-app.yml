@@ -9,9 +9,6 @@ services:
                 - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
                 - https_proxy=${https_proxy_IN_CONTAINER}
                 - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
-        ports:
-            - "8080:8080"
-            - "8983:8983"
         volumes:
             - /var/local/transmart/test/.grails:/root/.grails
             - /transmart_test:/transmart_test # Used for sharing R data
@@ -27,4 +24,18 @@ services:
             - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
             - https_proxy=${https_proxy_IN_CONTAINER}
             - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+            - HOST_HOSTNAME=${HOSTNAME}
+    transmart_test_front:
+        container_name: transmart_test_front
+        build:
+            context: ./front
+        ports:
+            - "80:80"
+            - "443:443"
+        links:
+            - transmart_test_servers:transmart_app
+        volumes:
+            - /var/local/transmart/test/etc/front-certs:/usr/local/apache2/conf/certs
+            - /var/local/transmart/test/etc/solr-auth:/usr/local/apache2/conf/solr-auth
+        environment:
             - HOST_HOSTNAME=${HOSTNAME}
