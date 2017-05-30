@@ -83,6 +83,20 @@ services:
             - EJSTATD_VPORT=1301
             - JMXREMOTE_PORT=1100
             - BRANCH=sanofi-release-16.1-dev
+    transmart_dev_front:
+        container_name: transmart_dev_front
+        build:
+            context: ./front
+        ports:
+            - "82:80"
+            - "445:443"
+        links:
+            - transmart_dev_servers:transmart_app
+        volumes:
+            - /var/local/transmart/dev/etc/front-certs:/usr/local/apache2/conf/certs
+            - /var/local/transmart/dev/etc/solr-auth:/usr/local/apache2/conf/solr-auth
+        environment:
+            - HOST_HOSTNAME=${HOSTNAME}
 volumes:
     transmart_dev_tomcat_webapps:
     transmart_dev_var_tmp_jobs:
