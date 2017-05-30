@@ -29,6 +29,8 @@ services:
         container_name: transmart_test_front
         build:
             context: ./front
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
         ports:
             - "80:80"
             - "443:443"

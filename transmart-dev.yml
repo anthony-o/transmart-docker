@@ -87,6 +87,8 @@ services:
         container_name: transmart_dev_front
         build:
             context: ./front
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
         ports:
             - "82:80"
             - "445:443"
