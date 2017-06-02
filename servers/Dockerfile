@@ -66,8 +66,8 @@ RUN cd $SCRIPTS_BASE/Scripts/install-ubuntu/checks && ./checkFilesBasic.sh
 # Fixing "ORA-01882: timezone region not found" and "java.lang.OutOfMemoryError: Java heap space" & following the installation instructions on https://wiki.transmartfoundation.org/display/transmartwiki/Install+the+current+official+release#Installthecurrentofficialrelease-InstallGrails2.x
 RUN echo 'CATALINA_OPTS="-Duser.timezone=Europe/Paris -XX:MaxPermSize=1g -Xmx2g -Xms512m -Djava.awt.headless=true -XX:+UseConcMarkSweepGC $CATALINA_OPTS"' >> $CATALINA_HOME/bin/setenv.sh
 # Ability to download / export files from "Browse"
-RUN sed -i 's|HTTP/1.1"|HTTP/1.1" maxHttpHeaderSize="32000" URIEncoding="UTF-8"|g' $CATALINA_HOME/conf/server.xml
-RUN sed -i 's|AJP/1.3"|AJP/1.3" packetSize="32000" URIEncoding="UTF-8" useBodyEncodingForURI="UTF-8"|g' $CATALINA_HOME/conf/server.xml
+RUN sed -i 's|HTTP/1.1"|HTTP/1.1" maxHttpHeaderSize="32768" URIEncoding="UTF-8"|g' $CATALINA_HOME/conf/server.xml
+RUN sed -i 's|AJP/1.3"|AJP/1.3" packetSize="32768" URIEncoding="UTF-8" useBodyEncodingForURI="UTF-8"|g' $CATALINA_HOME/conf/server.xml
 
 RUN cp -ar $CATALINA_HOME/webapps $CATALINA_HOME/webapps.orig
 
