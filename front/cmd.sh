@@ -7,12 +7,13 @@ if [ -f "$HTTPD_PREFIX/conf/certs/server.crt" ]; then
         cp -ar $HTTPD_PREFIX/conf.original/$F $HTTPD_PREFIX/conf/$F
     done
     # Patch the config to enable HTTPS
-    sed -i "s|#Include conf/extra/httpd-ssl.conf|Include conf/extra/httpd-ssl.conf|" conf/httpd.conf
     sed -i "s/#LoadModule ssl_module/LoadModule ssl_module/" conf/httpd.conf
     sed -i "s/#LoadModule socache_shmcb_module/LoadModule socache_shmcb_module/" conf/httpd.conf
     if [ -f "$HTTPD_PREFIX/conf/certs/server-ca.crt" ]; then
         sed -i "s/#SSLCertificateChainFile/SSLCertificateChainFile/" conf/extra/httpd-ssl.conf
     fi
+    ## Append http-ssl configuration at the end of the file in order to be loaded after transmart.conf, so that "LimitRequestFieldSize" that is defined there can be applied to the SSL virtualhost defined in SSL conf (thanks to https://stackoverflow.com/questions/24273399/how-to-change-the-limitrequestfieldsize-in-apache-2-4-2#comment72751119_25462375 )
+    echo "Include conf/extra/httpd-ssl.conf" >> conf/httpd.conf
 fi
 
 ## Create auth file for SolR if it doesn't exist
