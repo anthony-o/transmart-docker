@@ -59,17 +59,9 @@ RUN R -f /tmp/cran_pkg.R
 RUN R -f /tmp/other_pkg.R && \
     rm -rf /tmp/*.R
 
-    # Install additionnal R packages: RMarkdown
-#RUN yum install -y cairo-devel
-#RUN R CMD INSTALL formatR
-#RUN R CMD INSTALL highr
-#RUN R CMD INSTALL markdown
-#RUN R CMD INSTALL yaml
-#RUN R CMD INSTALL htmltools
-#RUN R CMD INSTALL knitr
-#RUN R CMD INSTALL rmarkdown
+# Install additionnal R packages: RMarkdown
 RUN R -e "install.packages(c('formatR', 'highr', 'markdown', 'yaml', 'htmltools', 'knitr', 'rmarkdown'), repos='$R_MIRROR');"
-    # Install additionnal R packages: RInterface (thanks to http://stackoverflow.com/a/1250279/535203 for simple quote escaping)
+# Install additionnal R packages: RInterface (thanks to http://stackoverflow.com/a/1250279/535203 for simple quote escaping)
 RUN yum install -y openssl-devel libssh2-devel libcurl-devel protobuf-devel protobuf-c-compiler && R -e "install.packages('devtools', repos='$R_MIRROR'); require(devtools); install_github('transmart/RInterface');"
 
 # Installing additionnal packages needed by RStudio and RMarkdown
@@ -103,6 +95,9 @@ RUN yum install -y --nogpgcheck /tmp/$ORACLE_INSTANTCLIENT_DEVEL_RPM /tmp/$ORACL
 # Install old RInterface
 ADD RInterface_old.zip /tmp/
 RUN cd /tmp && unzip RInterface_old.zip && R CMD INSTALL /tmp/RInterface && rm -rf /tmp/RInterface*
+
+# Install other needed R packages
+RUN R -e "install.packages('RCurl', repos='$R_MIRROR');"
 
 ADD cmd.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/cmd.sh
