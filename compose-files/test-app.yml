@@ -3,7 +3,7 @@ services:
     transmart_test_servers:
         container_name: transmart_test_servers
         build:
-            context: ./servers
+            context: ../servers
             args:
                 - http_proxy=${http_proxy_IN_CONTAINER}
                 - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
@@ -28,7 +28,7 @@ services:
     transmart_test_front:
         container_name: transmart_test_front
         build:
-            context: ./front
+            context: ../front
             args:
                 - http_proxy=${http_proxy_IN_CONTAINER}
         ports:

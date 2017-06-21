@@ -64,9 +64,9 @@ else
     docker tag $PREVIOUS_TRANSMART_RSERVER_IMAGE_ID transmart_rserver
 fi
 
-docker-compose -f $BASE_SCRIPT_DIR/transmart-$TARGET_ENV.yml build
-docker-compose -f $BASE_SCRIPT_DIR/transmart-$TARGET_ENV.yml down --volumes
-docker-compose -f $BASE_SCRIPT_DIR/transmart-$TARGET_ENV.yml up -d --force-recreate $*
+docker-compose -f $BASE_SCRIPT_DIR/compose-files/$TARGET_ENV.yml build
+docker-compose -f $BASE_SCRIPT_DIR/compose-files/$TARGET_ENV.yml down --volumes
+docker-compose -f $BASE_SCRIPT_DIR/compose-files/$TARGET_ENV.yml up -d --force-recreate $*
 
 # Compute passed time thanks to http://stackoverflow.com/q/16908084/535203
 ENDTIME=$(date +%s)

@@ -3,7 +3,7 @@ services:
     transmart_only_install_db_servers:
         container_name: transmart_only_install_db_servers
         build:
-            context: ./servers
+            context: ../servers
             args:
                 - http_proxy=${http_proxy_IN_CONTAINER}
                 - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
