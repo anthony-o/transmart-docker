@@ -8,6 +8,7 @@ STARTTIME=$(date +%s)
 BASE_SCRIPT_DIR="$(readlink -f `dirname $0`)"
 
 TARGET_ENV=$1
+COMPOSE_FILE=$BASE_SCRIPT_DIR/compose-files/$TARGET_ENV.yml
 
 shift
 
@@ -28,45 +29,48 @@ for PROXY_VAR in HTTPS_PROXY HTTP_PROXY https_proxy http_proxy ; do
 done
 
 # Build R server image (Sanofi specific: need a Rserve image based on CentOS in order for Centrify - auth mechanism - to be installed and work correctly)
-cd $BASE_SCRIPT_DIR/rserver
-## First we need to check that the Oracle InstantClient rpms have been downloaded by the user
-ORACLE_INSTANTCLIENT_MAJOR_VERSION=12.1
-ORACLE_INSTANTCLIENT_VERSION=$ORACLE_INSTANTCLIENT_MAJOR_VERSION.0.2.0-1
-ORACLE_INSTANTCLIENT_DEVEL_RPM=oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR_VERSION-devel-$ORACLE_INSTANTCLIENT_VERSION.x86_64.rpm
-ORACLE_INSTANTCLIENT_BASIC_RPM=oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR_VERSION-basic-$ORACLE_INSTANTCLIENT_VERSION.x86_64.rpm
-if [ ! -f "$ORACLE_INSTANTCLIENT_DEVEL_RPM" ] || [ ! -f "$ORACLE_INSTANTCLIENT_BASIC_RPM" ] ; then
-    echo "You must first download the Oracle Instant Client installation rpms from http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html .
-Download the following files and place them on $BASE_SCRIPT_DIR/rserver folder:
-- $ORACLE_INSTANTCLIENT_DEVEL_RPM
-- $ORACLE_INSTANTCLIENT_BASIC_RPM" >&2
-    exit 2
-fi
-PREVIOUS_TRANSMART_RSERVER_IMAGE_ID=$(docker images --quiet transmart_rserver || echo "")
-docker build --build-arg https_proxy=$https_proxy_IN_CONTAINER --build-arg http_proxy=$http_proxy_IN_CONTAINER \
-    --build-arg ORACLE_INSTANTCLIENT_MAJOR_VERSION=$ORACLE_INSTANTCLIENT_MAJOR_VERSION \
-    --build-arg ORACLE_INSTANTCLIENT_VERSION=$ORACLE_INSTANTCLIENT_VERSION \
-    -t transmart_rserver ./
-
-PREVIOUS_TRANSMART_RSERVER_BASE_IMAGE_ID=$(cat /var/local/transmart/built_transmart_rserver_base_image_id || echo "")
-CURRENT_TRANSMART_RSERVER_BASE_IMAGE_ID=$(docker images --quiet transmart_rserver)
-if [ "$PREVIOUS_TRANSMART_RSERVER_BASE_IMAGE_ID" != "$CURRENT_TRANSMART_RSERVER_BASE_IMAGE_ID" ] ; then
-    # The previous transmart_rserver docker image does not correspond to current build, let's continue the build and install Centrify tools - Sanofi specific (thanks to https://github.com/docker/docker/issues/14080#issuecomment-269460330 idea)
-    if [ ! -f /cdc/centrifydc-install.sh ] ; then
-        echo "Must mount /cdc first (this must point to Centrify installation tools). Call GAHS or Analytics Platforms and Services if you don't know what it is" >&2
-        exit 1
+## Check if the target compose file needs the rserver part
+if grep -e '^\s*image:\s*transmart_rserver' $COMPOSE_FILE ; then
+    cd $BASE_SCRIPT_DIR/rserver
+    ## First we need to check that the Oracle InstantClient rpms have been downloaded by the user
+    ORACLE_INSTANTCLIENT_MAJOR_VERSION=12.1
+    ORACLE_INSTANTCLIENT_VERSION=$ORACLE_INSTANTCLIENT_MAJOR_VERSION.0.2.0-1
+    ORACLE_INSTANTCLIENT_DEVEL_RPM=oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR_VERSION-devel-$ORACLE_INSTANTCLIENT_VERSION.x86_64.rpm
+    ORACLE_INSTANTCLIENT_BASIC_RPM=oracle-instantclient$ORACLE_INSTANTCLIENT_MAJOR_VERSION-basic-$ORACLE_INSTANTCLIENT_VERSION.x86_64.rpm
+    if [ ! -f "$ORACLE_INSTANTCLIENT_DEVEL_RPM" ] || [ ! -f "$ORACLE_INSTANTCLIENT_BASIC_RPM" ] ; then
+        echo "You must first download the Oracle Instant Client installation rpms from http://www.oracle.com/technetwork/topics/linuxx86-64soft-092277.html .
+    Download the following files and place them on $BASE_SCRIPT_DIR/rserver folder:
+    - $ORACLE_INSTANTCLIENT_DEVEL_RPM
+    - $ORACLE_INSTANTCLIENT_BASIC_RPM" >&2
+        exit 2
     fi
-    docker rm transmart_rserver_build || echo "'transmart_rserver_build' container does not exist, that's normal."
-    docker run -it --name transmart_rserver_build -v /cdc:/cdc transmart_rserver /cdc/centrifydc-install.sh -r AMER
-    docker commit '--change=CMD ["/usr/local/bin/cmd.sh"]' transmart_rserver_build transmart_rserver
-    docker rm transmart_rserver_build
-    echo $CURRENT_TRANSMART_RSERVER_BASE_IMAGE_ID | dzdo tee /var/local/transmart/built_transmart_rserver_base_image_id
-else
-    docker tag $PREVIOUS_TRANSMART_RSERVER_IMAGE_ID transmart_rserver
+    PREVIOUS_TRANSMART_RSERVER_IMAGE_ID=$(docker images --quiet transmart_rserver || echo "")
+    docker build --build-arg https_proxy=$https_proxy_IN_CONTAINER --build-arg http_proxy=$http_proxy_IN_CONTAINER \
+        --build-arg ORACLE_INSTANTCLIENT_MAJOR_VERSION=$ORACLE_INSTANTCLIENT_MAJOR_VERSION \
+        --build-arg ORACLE_INSTANTCLIENT_VERSION=$ORACLE_INSTANTCLIENT_VERSION \
+        -t transmart_rserver ./
+
+    PREVIOUS_TRANSMART_RSERVER_BASE_IMAGE_ID=$(cat /var/local/transmart/built_transmart_rserver_base_image_id || echo "")
+    CURRENT_TRANSMART_RSERVER_BASE_IMAGE_ID=$(docker images --quiet transmart_rserver)
+    if [ "$PREVIOUS_TRANSMART_RSERVER_BASE_IMAGE_ID" != "$CURRENT_TRANSMART_RSERVER_BASE_IMAGE_ID" ] ; then
+        # The previous transmart_rserver docker image does not correspond to current build, let's continue the build and install Centrify tools - Sanofi specific (thanks to https://github.com/docker/docker/issues/14080#issuecomment-269460330 idea)
+        if [ ! -f /cdc/centrifydc-install.sh ] ; then
+            echo "Must mount /cdc first (this must point to Centrify installation tools). Call GAHS or Analytics Platforms and Services if you don't know what it is" >&2
+            exit 1
+        fi
+        docker rm transmart_rserver_build || echo "'transmart_rserver_build' container does not exist, that's normal."
+        docker run -it --name transmart_rserver_build -v /cdc:/cdc transmart_rserver /cdc/centrifydc-install.sh -r AMER
+        docker commit '--change=CMD ["/usr/local/bin/cmd.sh"]' transmart_rserver_build transmart_rserver
+        docker rm transmart_rserver_build
+        echo $CURRENT_TRANSMART_RSERVER_BASE_IMAGE_ID | dzdo tee /var/local/transmart/built_transmart_rserver_base_image_id
+    else
+        docker tag $PREVIOUS_TRANSMART_RSERVER_IMAGE_ID transmart_rserver
+    fi
 fi
 
-docker-compose -f $BASE_SCRIPT_DIR/compose-files/$TARGET_ENV.yml build
-docker-compose -f $BASE_SCRIPT_DIR/compose-files/$TARGET_ENV.yml down --volumes
-docker-compose -f $BASE_SCRIPT_DIR/compose-files/$TARGET_ENV.yml up -d --force-recreate $*
+docker-compose -f $COMPOSE_FILE build
+docker-compose -f $COMPOSE_FILE down --volumes
+docker-compose -f $COMPOSE_FILE up -d --force-recreate $*
 
 # Compute passed time thanks to http://stackoverflow.com/q/16908084/535203
 ENDTIME=$(date +%s)
