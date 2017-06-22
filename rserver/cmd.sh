@@ -6,6 +6,13 @@ set -x
 cp -ar /etc/pam.d.host/* /etc/pam.d/
 cp /etc/pam.d/login /etc/pam.d/rstudio # In order to correctly make RStudio to log users using local PAM configuration - with Kerberos
 
+# Merge some host groups (those defined in /etc/R_container/groups_to_merge )
+if [ -f /etc/R_container/groups_to_merge ] ; then
+    for GROUP in `cat /etc/R_container/groups_to_merge` ; do
+        cat /etc/group.host | grep "$GROUP" >> /etc/group
+    done
+fi
+
 # Add X11 support in R thanks to http://stackoverflow.com/a/1710952/535203 and https://gist.github.com/jterrace/2911875
 Xvfb :0 -ac -screen 0 1960x2000x24 &
 

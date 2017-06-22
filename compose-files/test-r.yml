@@ -18,6 +18,8 @@ services:
             - /home:/home
             - /run # To use D-Bus thanks to https://forums.docker.com/t/any-simple-and-safe-way-to-start-services-on-centos7-systemd/5695/8
 #            - /tmp # To use D-Bus thanks to https://forums.docker.com/t/any-simple-and-safe-way-to-start-services-on-centos7-systemd/5695/8
+            - /var/local/transmart/test/etc/R_container:/etc/R_container
+            - /etc/group:/etc/group.host:ro
         environment:
             - http_proxy=${http_proxy_IN_CONTAINER}
             - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
