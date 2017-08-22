@@ -28,6 +28,16 @@ for PROXY_VAR in HTTPS_PROXY HTTP_PROXY https_proxy http_proxy ; do
     fi
 done
 
+# Check for specific arguments
+while [ "$END_OF_ARGUMENT_PARSING" != "true" ] ; do
+    END_OF_ARGUMENT_PARSING=true
+    if [ "$1" == "--build-no-cache" ] ; then
+        BUILD_NO_CACHE="--no-cache"
+        END_OF_ARGUMENT_PARSING=false
+        shift
+    fi
+done
+
 # Build R server image (Sanofi specific: need a Rserve image based on CentOS in order for Centrify - auth mechanism - to be installed and work correctly)
 ## Check if the target compose file needs the rserver part
 if grep -e '^\s*image:\s*transmart_rserver' $COMPOSE_FILE ; then
@@ -48,7 +58,7 @@ if grep -e '^\s*image:\s*transmart_rserver' $COMPOSE_FILE ; then
     docker build --build-arg https_proxy=$https_proxy_IN_CONTAINER --build-arg http_proxy=$http_proxy_IN_CONTAINER \
         --build-arg ORACLE_INSTANTCLIENT_MAJOR_VERSION=$ORACLE_INSTANTCLIENT_MAJOR_VERSION \
         --build-arg ORACLE_INSTANTCLIENT_VERSION=$ORACLE_INSTANTCLIENT_VERSION \
-        -t transmart_rserver ./
+        $BUILD_NO_CACHE -t transmart_rserver ./
 
     PREVIOUS_TRANSMART_RSERVER_BASE_IMAGE_ID=$(cat /var/local/transmart/built_transmart_rserver_base_image_id || echo "")
     CURRENT_TRANSMART_RSERVER_BASE_IMAGE_ID=$(docker images --quiet transmart_rserver)
@@ -68,7 +78,7 @@ if grep -e '^\s*image:\s*transmart_rserver' $COMPOSE_FILE ; then
     fi
 fi
 
-docker-compose -f $COMPOSE_FILE build
+docker-compose -f $COMPOSE_FILE build $BUILD_NO_CACHE
 docker-compose -f $COMPOSE_FILE down --volumes
 docker-compose -f $COMPOSE_FILE up -d --force-recreate $*
 
