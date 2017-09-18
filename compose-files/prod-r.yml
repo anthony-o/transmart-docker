@@ -4,7 +4,7 @@ services:
         container_name: transmart_prod_rserver
         image: transmart_rserver
         volumes:
-            - /transmart_prod:/transmart_prod
+            - /Transmart_Prod:/Transmart_Prod
             - /var/centrifydc/:/var/centrifydc
             - /var/centrify:/var/centrify
             - /etc/pam.d:/etc/pam.d.host:ro
