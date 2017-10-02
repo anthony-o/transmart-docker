@@ -19,6 +19,7 @@ services:
             - /var/local/transmart/.m2/repository:/root/.m2/repository
             - /var/local/transmart/etc:/usr/local/etc
             - /etc:/etc.host:ro
+            - /Transmart_Prod/prod-app-tmp:/tmp # /tmp was limited to 10G and we needed more when we were indexing the files with SolR
         environment:
             - http_proxy=${http_proxy_IN_CONTAINER}
             - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
