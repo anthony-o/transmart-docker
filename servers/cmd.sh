@@ -159,7 +159,7 @@ if [ -z "$ONLY_INSTALL_DB" ]; then
     if [ -n "$LDAPS_URL" ] ; then
         # We must download the cert & install it to the java cacerts
         # retrieving the cert thanks to http://stackoverflow.com/a/6742204/535203 which pointed to https://www.madboa.com/geek/openssl/#cert-retrieve
-        echo | openssl s_client -connect $LDAPS_URL 2>&1 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/cert.pem
+        echo | openssl s_client -connect $LDAPS_URL | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/cert.pem
         CACERTS_PATH=$JAVA_HOME/jre/lib/security/cacerts
         # Copy original cacerts or retrieve it
         if [ -f $CACERTS_PATH.orig ] ; then
