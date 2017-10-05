@@ -62,7 +62,11 @@ RUN R -f /tmp/other_pkg.R && \
 # Install additionnal R packages: RMarkdown
 RUN R -e "install.packages(c('formatR', 'highr', 'markdown', 'yaml', 'htmltools', 'knitr', 'rmarkdown'), repos='$R_MIRROR');"
 # Install additionnal R packages: RInterface (thanks to http://stackoverflow.com/a/1250279/535203 for simple quote escaping)
-RUN yum install -y openssl-devel libssh2-devel libcurl-devel protobuf-devel protobuf-c-compiler && R -e "install.packages('devtools', repos='$R_MIRROR'); require(devtools); install_github('transmart/RInterface');"
+ENV TRANSMART_VERSION release-16.1
+RUN yum install -y openssl-devel libssh2-devel libcurl-devel protobuf-devel protobuf-c-compiler && \
+    cd /opt && git clone https://github.com/tranSMART-Foundation/RInterface.git && cd RInterface && git checkout $TRANSMART_VERSION && \
+    sed -i "s|somePath/repository-location|/opt|" bin/installCommands.R && sed -i "s|install\\.packages(pkgs|install.packages(repos='$R_MIRROR', pkgs|" bin/installCommands.R && \
+    R -f bin/installCommands.R
 
 # Installing additionnal packages needed by RStudio and RMarkdown
 ## initscripts needed by rstudio-server script else I have a "/etc/init.d/rstudio-server: line 8: /etc/rc.d/init.d/functions: No such file or directory" (thanks to http://unix.stackexchange.com/a/347089/29674 )
@@ -95,9 +99,6 @@ RUN yum install -y --nogpgcheck /tmp/$ORACLE_INSTANTCLIENT_DEVEL_RPM /tmp/$ORACL
 # Install old RInterface
 ADD RInterface_old.zip /tmp/
 RUN cd /tmp && unzip RInterface_old.zip && R CMD INSTALL /tmp/RInterface && rm -rf /tmp/RInterface*
-
-# Install other needed R packages
-RUN R -e "install.packages('RCurl', repos='$R_MIRROR');"
 
 ADD cmd.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/cmd.sh
