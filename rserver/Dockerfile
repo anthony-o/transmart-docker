@@ -62,9 +62,9 @@ RUN R -f /tmp/other_pkg.R && \
 # Install additionnal R packages: RMarkdown
 RUN R -e "install.packages(c('formatR', 'highr', 'markdown', 'yaml', 'htmltools', 'knitr', 'rmarkdown'), repos='$R_MIRROR');"
 # Install additionnal R packages: RInterface (thanks to http://stackoverflow.com/a/1250279/535203 for simple quote escaping)
-ENV TRANSMART_VERSION release-16.1
+ENV RINTERFACE_VERSION release-16.2
 RUN yum install -y openssl-devel libssh2-devel libcurl-devel protobuf-devel protobuf-c-compiler && \
-    cd /opt && git clone https://github.com/tranSMART-Foundation/RInterface.git && cd RInterface && git checkout $TRANSMART_VERSION && \
+    cd /opt && git clone https://github.com/tranSMART-Foundation/RInterface.git && cd RInterface && git checkout $RINTERFACE_VERSION && \
     sed -i "s|somePath/repository-location|/opt|" bin/installCommands.R && sed -i "s|install\\.packages(pkgs|install.packages(repos='$R_MIRROR', pkgs|" bin/installCommands.R && \
     R -f bin/installCommands.R
 
