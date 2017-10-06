@@ -22,6 +22,11 @@ R CMD Rserve --quiet --vanilla
 # rstudio-server start # doesn't work in this CentOS container, fails with message "Reloading systemd:  Failed to get D-Bus connection: Operation not permitted" which points to https://github.com/docker/docker/issues/7459
 #/etc/init.d/rstudio-server start
 
+if [ -n "$(ls /etc/pki/ca-trust/source/anchors)" ] ; then
+    # There are some custom certificates to import, thanks to https://unix.stackexchange.com/a/271076/29674
+    update-ca-trust extract
+fi
+
 # Tail the RStudio server logs thanks to https://support.rstudio.com/hc/en-us/articles/200554766-RStudio-Server-Application-Logs
 # tail -f /var/log/messages # Doesn't work: there is nothing at the 3 locations pointed by the article, they are at another locations http://stackoverflow.com/a/42511897/535203
 
