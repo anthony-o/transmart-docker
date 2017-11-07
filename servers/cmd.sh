@@ -151,6 +151,7 @@ if [ -z "$ONLY_INSTALL_DB" ]; then
     cp $WORKSPACE_DIR/{current,build}_footprint
 
     # Install war files
+    rm -rf $CATALINA_HOME/webapps/*
     cp $INSTALL_BASE/war-files/*.war $CATALINA_HOME/webapps/
 
     # Install LDAP cert if LDAPS is used somewhere in configuration
