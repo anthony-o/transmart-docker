@@ -26,6 +26,7 @@ services:
             - https_proxy=${https_proxy_IN_CONTAINER}
             - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
             - HOST_HOSTNAME=${HOSTNAME}
+            - GRAILS_ENV=prod
     transmart_prod_front:
         container_name: transmart_prod_front
         build:

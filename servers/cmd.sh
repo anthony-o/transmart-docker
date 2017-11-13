@@ -129,18 +129,20 @@ if [ -z "$ONLY_INSTALL_DB" ]; then
     # Build if necessary (using rev-list count feature thanks to http://stackoverflow.com/a/38819020/535203)
     cd $WORKSPACE_DIR/transmartApp
     if [ ! -f $WORKSPACE_DIR/build_footprint ] || [ "$(cat $WORKSPACE_DIR/build_footprint)" != "$(cat $WORKSPACE_DIR/current_footprint)" ] ; then
-
-        if [ -n "$GRAILS_CLEAN_ALL" ] ; then
-            grails clean-all
+        if [ -n "$GRAILS_ENV" ] ; then
+            GRAILS_ENV_OPT="-Dgrails.env=$GRAILS_ENV"
         fi
-        grails clean
+        if [ -n "$GRAILS_CLEAN_ALL" ] ; then
+            grails $GRAILS_ENV_OPT clean-all
+        fi
+        grails $GRAILS_ENV_OPT clean
         # Must launch 2 times because on the first time, the plugin transmart-core-db-tests will compile with errors
-        grails war || grails war || BUILD_FAILED=true
+        grails $GRAILS_ENV_OPT war || grails $GRAILS_ENV_OPT war || BUILD_FAILED=true
         if [ -n "$BUILD_FAILED" ] ; then
             if [ -z "$GRAILS_CLEAN_ALL" ] ; then
                 # The build failed, and "clean-all" wasn't call. Try to clean-all and rebuild 2 times (because the 1st will fail)
-                grails clean-all
-                grails war || grails war
+                grails $GRAILS_ENV_OPT clean-all
+                grails $GRAILS_ENV_OPT war || grails $GRAILS_ENV_OPT war
             else
                 exit 2
             fi
