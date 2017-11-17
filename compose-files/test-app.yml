@@ -1,0 +1,43 @@
+version: '2'
+services:
+    transmart_test_servers:
+        container_name: transmart_test_servers
+        build:
+            context: ../servers
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
+                - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+                - https_proxy=${https_proxy_IN_CONTAINER}
+                - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+        volumes:
+            - /var/local/transmart/test/.grails:/root/.grails
+            - /transmart_test:/transmart_test # Used for sharing R data
+            - /transmart_test/transmart-webapps-test:/usr/local/tomcat/webapps # Used for sharing R scripts
+            - /var/local/transmart/test/data/solr:/usr/local/transmart/transmart-data-sanofi-release-16.1/solr/solr
+            - /var/local/transmart/test/etc/solr-auth:/usr/local/transmart/transmart-data-sanofi-release-16.1/solr/etc/auth
+            - /var/local/transmart/test/workspace:/workspace
+            - /var/local/transmart/.m2/repository:/root/.m2/repository
+            - /var/local/transmart/etc:/usr/local/etc
+            - /etc:/etc.host:ro
+        environment:
+            - http_proxy=${http_proxy_IN_CONTAINER}
+            - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+            - https_proxy=${https_proxy_IN_CONTAINER}
+            - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+            - HOST_HOSTNAME=${HOSTNAME}
+    transmart_test_front:
+        container_name: transmart_test_front
+        build:
+            context: ../front
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
+        ports:
+            - "80:80"
+            - "443:443"
+        links:
+            - transmart_test_servers:transmart_app
+        volumes:
+            - /var/local/transmart/test/etc/front-certs:/usr/local/apache2/conf/certs
+            - /var/local/transmart/test/etc/solr-auth:/usr/local/apache2/conf/solr-auth
+        environment:
+            - HOST_HOSTNAME=${HOSTNAME}

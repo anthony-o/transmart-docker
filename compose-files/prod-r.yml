@@ -1,0 +1,32 @@
+version: '2'
+services:
+    transmart_prod_rserver:
+        container_name: transmart_prod_rserver
+        image: transmart_rserver
+        volumes:
+            - /Transmart_Prod:/Transmart_Prod
+            - /var/centrifydc/:/var/centrifydc
+            - /var/centrify:/var/centrify
+            - /etc/pam.d:/etc/pam.d.host:ro
+            - /etc/nsswitch.conf:/etc/nsswitch.conf:ro
+            - /etc/centrifydc:/etc/centrifydc:ro
+            - /etc/krb5.conf:/etc/krb5.conf:ro
+            - /etc/krb5.keytab:/etc/krb5.keytab:ro
+            - /etc/krb5.ccache:/etc/krb5.ccache:ro
+            - /sys/fs/cgroup:/sys/fs/cgroup:ro # To use D-Bus http://serverfault.com/a/825027/93281
+#            - /var/local/rstudio/home:/home
+            - /home:/home
+            - /run # To use D-Bus thanks to https://forums.docker.com/t/any-simple-and-safe-way-to-start-services-on-centos7-systemd/5695/8
+#            - /tmp # To use D-Bus thanks to https://forums.docker.com/t/any-simple-and-safe-way-to-start-services-on-centos7-systemd/5695/8
+            - /etc/pki/ca-trust/source/anchors:/etc/pki/ca-trust/source/anchors:ro # In order to import custom certificates of the host thanks to https://unix.stackexchange.com/a/271076/29674
+        environment:
+            - http_proxy=${http_proxy_IN_CONTAINER}
+            - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+            - https_proxy=${https_proxy_IN_CONTAINER}
+            - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+        ports:
+            - "6311:6311" # Rserve
+            - "8787:8787" # RStudio
+        hostname: ${HOSTNAME}
+        tty: true
+        stdin_open: true

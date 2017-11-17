@@ -1,0 +1,45 @@
+version: '2'
+services:
+    transmart_prod_servers:
+        container_name: transmart_prod_servers
+        build:
+            context: ../servers
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
+                - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+                - https_proxy=${https_proxy_IN_CONTAINER}
+                - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+        volumes:
+            - /var/local/transmart/prod/.grails:/root/.grails
+            - /Transmart_Prod:/Transmart_Prod # Used for sharing R data
+            - /Transmart_Prod/transmart-webapps-prod:/usr/local/tomcat/webapps # Used for sharing R scripts
+            - /var/local/transmart/prod/data/solr:/usr/local/transmart/transmart-data-sanofi-release-16.1/solr/solr
+            - /var/local/transmart/prod/etc/solr-auth:/usr/local/transmart/transmart-data-sanofi-release-16.1/solr/etc/auth
+            - /var/local/transmart/prod/workspace:/workspace
+            - /var/local/transmart/.m2/repository:/root/.m2/repository
+            - /var/local/transmart/etc:/usr/local/etc
+            - /etc:/etc.host:ro
+            - /Transmart_Prod/prod-app-tmp:/tmp # /tmp was limited to 10G and we needed more when we were indexing the files with SolR
+        environment:
+            - http_proxy=${http_proxy_IN_CONTAINER}
+            - HTTP_PROXY=${HTTP_PROXY_IN_CONTAINER}
+            - https_proxy=${https_proxy_IN_CONTAINER}
+            - HTTPS_PROXY=${HTTPS_PROXY_IN_CONTAINER}
+            - HOST_HOSTNAME=${HOSTNAME}
+            - GRAILS_ENV=prod
+    transmart_prod_front:
+        container_name: transmart_prod_front
+        build:
+            context: ../front
+            args:
+                - http_proxy=${http_proxy_IN_CONTAINER}
+        ports:
+            - "80:80"
+            - "443:443"
+        links:
+            - transmart_prod_servers:transmart_app
+        volumes:
+            - /var/local/transmart/prod/etc/front-certs:/usr/local/apache2/conf/certs
+            - /var/local/transmart/prod/etc/solr-auth:/usr/local/apache2/conf/solr-auth
+        environment:
+            - HOST_HOSTNAME=${HOSTNAME}
