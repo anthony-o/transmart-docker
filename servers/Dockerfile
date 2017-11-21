@@ -20,7 +20,7 @@ ENV TMS_SCRIPTS_DIR $SCRIPTS_BASE/Scripts
 RUN apt-get install -y make curl tar
 
 # set up the transmart-data folder
-RUN cd $INSTALL_BASE && wget https://github.com/anthony-o/transmart-data/archive/sanofi-release-16.1.tar.gz && tar xvzf sanofi-release-16.1.tar.gz && ln -nfs $INSTALL_BASE/transmart-data-sanofi-release-16.1 transmart-data
+RUN cd $INSTALL_BASE && wget https://github.com/Maria-TH/transmart-data/archive/sanofi-release-16.1.tar.gz && tar xvzf sanofi-release-16.1.tar.gz && ln -nfs $INSTALL_BASE/transmart-data-sanofi-release-16.1 transmart-data
 ENV TM_DATA_DIR $INSTALL_BASE/transmart-data
 
 # set up the tranSMART-ETL folder

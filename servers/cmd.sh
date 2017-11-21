@@ -3,7 +3,7 @@
 set -x
 
 WORKSPACE_DIR=/workspace
-GIT_URL_BASE=https://github.com/anthony-o
+GIT_URL_BASE=https://github.com/Maria-TH
 DEFAULT_BRANCH=sanofi-release-16.1
 [[ -z "$BRANCH" ]] && BRANCH=$DEFAULT_BRANCH
 

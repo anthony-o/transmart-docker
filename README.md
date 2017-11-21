@@ -15,7 +15,7 @@ Here are the specificities of the servers & tranSMART features activated for thi
 ## Architecture
 On the hosts, there are 2 folders which will host all the data:
 - `/var/local/transmart` - for all the data
-- `/var/local/transmart-docker` - for the scripts of https://github.com/anthony-o/transmart-docker.git project
+- `/var/local/transmart-docker` - for the scripts of https://github.com/Maria-TH/transmart-docker.git project
 
 [`build-and-run.sh`](build-and-run.sh) script will build the required Docker images and launch them, using `docker-compose`.
 
@@ -30,7 +30,7 @@ Here is the explanation of the subfolders of the project:
 After installing `docker` & `docker-compose` on the host, simply execute this
 ```bash
 cd /var/local
-git clone --branch sanofi-release-16.1 https://github.com/anthony-o/transmart-docker.git
+git clone --branch sanofi-release-16.1 https://github.com/Maria-TH/transmart-docker.git
 cd transmart-docker
 ```
 
